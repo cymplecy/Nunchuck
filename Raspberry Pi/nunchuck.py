@@ -8,6 +8,7 @@
 ## v0.1 03/05/14 - Initital release
 ## v0.2 21/06/14 - Retrieve one byte at a time [Simon Walters - @cymplecy]
 ## v0.3 22/06/14 - Minor Refactoring [Jack Wearden - @JackWeirdy]
+## v0.31 25/6/14 - XOR each data byte with 0x17 and then add 0x17 to produce corrent values - Simon Walters @cymplecy
 
 from smbus import SMBus
 import RPi.GPIO as rpi
@@ -31,9 +32,12 @@ class nunchuck:
 
   def read(self):
     self.bus.write_byte(0x52,0x00)
-    time.sleep(0.2)
-
-    return [self.bus.read_byte(0x52) for i in range(6)]
+    time.sleep(0.05)
+    temp = [self.bus.read_byte(0x52) for i in range(6)]
+    new_temp = []
+    for i in temp:
+        new_temp.append((i ^ 0x17 ) + 0x17)
+    return temp
 
   def raw(self):
     data = self.read()
@@ -82,3 +86,4 @@ class nunchuck:
 
   def scale(self,value,_min,_max,_omin,_omax):
     return (value - _min) * (_omax - _omin) // (_max - _min) + _omin
+
